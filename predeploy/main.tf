@@ -7,7 +7,11 @@ module "tfstate-backend" {
   version = "0.29.0"
 
   enabled       = true
-  environment   = "dev"
-  name          = "multi-region-ecs-fargate-demo"
+  environment   = "multi-region-ecs-fargate-demo"
+  name          = "terraform"
   stage         = "dev"
+
+  terraform_backend_config_file_path = "."
+  terraform_backend_config_file_name = "backend.tf"
+  force_destroy                      = false
 }
