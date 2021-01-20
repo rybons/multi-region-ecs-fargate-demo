@@ -12,21 +12,27 @@ module "ecs" {
   }
 }
 
+data "aws_vpc" "vpc" {
+  id = var.vpc_id
+}
+
 data "template_file" "service" {
   template = file("${path.module}/templates/service.json.tpl")
   vars = {
     name            = var.service_name
     image           = var.service_container_image
-    cpu             = var.service_container_cpu
-    memory          = var.service_container_memory
     container_port  = var.service_container_port
     host_port       = var.service_host_port
   }
 }
 
 resource "aws_ecs_task_definition" "service" {
-  family                = "service"
-  container_definitions = data.template_file.service.rendered
+  family                    = "service"
+  container_definitions     = data.template_file.service.rendered
+  requires_compatibilities  = ["FARGATE"]
+  network_mode              = "awsvpc"
+  cpu                       = var.service_container_cpu
+  memory                    = var.service_container_memory
 }
 
 resource "aws_ecs_service" "service" {
@@ -36,8 +42,91 @@ resource "aws_ecs_service" "service" {
   desired_count   = 3
   launch_type     = "FARGATE"
 
+  load_balancer {
+    target_group_arn = aws_lb_target_group.tg.arn
+    container_name   = var.service_name
+    container_port   = var.service_container_port
+  }
+
   ordered_placement_strategy {
     type  = "binpack"
     field = "cpu"
+  }
+
+  network_configuration {
+    subnets           = var.private_subnets
+    security_groups   = [aws_security_group.ecs-service.id]
+    assign_public_ip  = false
+  }
+}
+
+resource "aws_lb" "alb" {
+  name               = "alb-${var.service_name}"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.alb.id]
+  subnets            = var.public_subnets
+
+  enable_deletion_protection = true
+
+  tags = {
+    Environment = var.tag_environment
+  }
+}
+
+resource "aws_lb_target_group" "tg" {
+  name     = "tg-${var.service_name}"
+  port     = var.service_host_port
+  protocol = "HTTP"
+  vpc_id   = data.aws_vpc.vpc.id
+}
+
+resource "aws_security_group" "ecs-service" {
+  name        = "vpc-ingress-${var.service_name}"
+  description = "ECS Security Group"
+  vpc_id      = data.aws_vpc.vpc.id
+
+  ingress {
+    description = "VPC Ingress"
+    from_port   = var.service_host_port
+    to_port     = var.service_host_port
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_vpc.vpc.cidr_block]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "vpc-ingress-${var.service_name}"
+  }
+}
+
+resource "aws_security_group" "alb" {
+  name        = "alb-${var.service_name}"
+  description = "ALB Security Group"
+  vpc_id      = data.aws_vpc.vpc.id
+
+  ingress {
+    description = "TLS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "alb-${var.service_name}"
   }
 }

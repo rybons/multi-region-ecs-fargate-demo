@@ -27,6 +27,50 @@ locals {
   service_count           = 3
 }
 
+module "vpc-east" {
+  source = "terraform-aws-modules/vpc/aws"
+
+  name = "ecs-fargate-east"
+  cidr = "10.70.0.0/16"
+
+  azs             = ["us-east-1a", "us-east-1b", "us-east-1c", "us-east-1d", "us-east-1e", "us-east-1f"]
+  private_subnets = ["10.70.1.0/24", "10.70.2.0/24", "10.70.3.0/24", "10.70.4.0/24", "10.70.5.0/24", "10.70.6.0/24"]
+  public_subnets  = ["10.70.101.0/24", "10.70.102.0/24", "10.70.103.0/24", "10.70.104.0/24", "10.70.105.0/24", "10.70.106.0/24"]
+
+  enable_nat_gateway = true
+  enable_vpn_gateway = true
+
+  tags = {
+    Environment = "dev-east"
+  }
+
+  providers = {
+    aws = aws.east
+  }
+}
+
+module "vpc-west" {
+  source = "terraform-aws-modules/vpc/aws"
+
+  name = "ecs-fargate-west"
+  cidr = "10.80.0.0/16"
+
+  azs             = ["us-west-1a", "us-west-1c"]
+  private_subnets = ["10.80.1.0/24", "10.80.2.0/24"]
+  public_subnets  = ["10.80.101.0/24", "10.80.102.0/24"]
+
+  enable_nat_gateway = true
+  enable_vpn_gateway = true
+
+  tags = {
+    Environment = "dev-west"
+  }
+
+  providers = {
+    aws = aws.west
+  }
+}
+
 module "ecs-east" {
   source          = "./modules/ecs-fargate"
 
@@ -37,6 +81,10 @@ module "ecs-east" {
   service_container_port    = local.service_container_port
   service_host_port         = local.service_host_port
   service_count             = local.service_count
+
+  vpc_id                    = module.vpc-east.vpc_id
+  private_subnets           = module.vpc-east.private_subnets
+  public_subnets            = module.vpc-east.public_subnets
 
   tag_environment = "dev-east"
 
@@ -55,6 +103,10 @@ module "ecs-west" {
   service_container_port    = local.service_container_port
   service_host_port         = local.service_host_port
   service_count             = local.service_count
+
+  vpc_id                    = module.vpc-west.vpc_id
+  private_subnets           = module.vpc-west.private_subnets
+  public_subnets            = module.vpc-west.public_subnets
 
   tag_environment = "dev-west"
 

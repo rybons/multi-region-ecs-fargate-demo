@@ -1,3 +1,14 @@
+# VPC Variables
+
+variable "vpc_id" {
+}
+
+variable "public_subnets" {
+}
+
+variable "private_subnets" {
+}
+
 # ECS Service Variables
 
 variable "service_name" {
