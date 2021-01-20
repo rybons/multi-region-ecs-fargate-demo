@@ -19,7 +19,7 @@ provider "aws" {
 
 module "ecs-east" {
   source          = "./modules/ecs-fargate"
-  tag_environment = "Development-East"
+  tag_environment = "dev-east"
 
   providers = {
     aws = aws.east
@@ -28,7 +28,7 @@ module "ecs-east" {
 
 module "ecs-west" {
   source          = "./modules/ecs-fargate"
-  tag_environment = "Development_West"
+  tag_environment = "dev-west"
 
   providers = {
     aws = aws.west
