@@ -82,6 +82,17 @@ resource "aws_alb_target_group" "tg" {
   depends_on = [aws_alb.alb]
 }
 
+resource "aws_alb_listener" "http-listener" {
+  load_balancer_arn = aws_alb.alb.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_alb_target_group.tg.arn
+  }
+}
+
 resource "aws_security_group" "ecs-service" {
   name        = "vpc-ingress-${var.service_name}"
   description = "ECS Security Group"
