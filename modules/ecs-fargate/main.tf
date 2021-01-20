@@ -119,10 +119,10 @@ resource "aws_security_group" "alb" {
   vpc_id      = data.aws_vpc.vpc.id
 
   ingress {
-    description = "TLS"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "TCP"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
