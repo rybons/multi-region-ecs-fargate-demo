@@ -75,10 +75,13 @@ resource "aws_lb" "alb" {
 }
 
 resource "aws_lb_target_group" "tg" {
-  name     = "tg-${var.service_name}"
-  port     = var.service_host_port
-  protocol = "HTTP"
-  vpc_id   = data.aws_vpc.vpc.id
+  name        = "tg-${var.service_name}"
+  port        = var.service_host_port
+  protocol    = "HTTP"
+  target_type = "ip"
+  vpc_id      = data.aws_vpc.vpc.id
+
+  depends_on = [aws_lb.alb]
 }
 
 resource "aws_security_group" "ecs-service" {
