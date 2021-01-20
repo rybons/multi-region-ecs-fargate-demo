@@ -48,11 +48,6 @@ resource "aws_ecs_service" "service" {
     container_port   = var.service_container_port
   }
 
-  ordered_placement_strategy {
-    type  = "binpack"
-    field = "cpu"
-  }
-
   network_configuration {
     subnets           = var.private_subnets
     security_groups   = [aws_security_group.ecs-service.id]
