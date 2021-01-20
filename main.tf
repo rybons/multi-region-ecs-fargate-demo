@@ -8,6 +8,7 @@ terraform {
 }
 
 provider "aws" {
+  alias  = "east"
   region = "us-east-1"
 }
 
@@ -19,9 +20,17 @@ provider "aws" {
 module "ecs-east" {
   source          = "./modules/ecs-fargate"
   tag_environment = "Development-East"
+
+  providers = {
+    aws = aws.east
+  }
 }
 
 module "ecs-west" {
   source          = "./modules/ecs-fargate"
   tag_environment = "Development_West"
+
+  providers = {
+    aws = aws.west
+  }
 }
