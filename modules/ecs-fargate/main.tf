@@ -43,7 +43,7 @@ resource "aws_ecs_service" "service" {
   launch_type     = "FARGATE"
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.tg.arn
+    target_group_arn = aws_alb_target_group.tg.arn
     container_name   = var.service_name
     container_port   = var.service_container_port
   }
@@ -60,28 +60,26 @@ resource "aws_ecs_service" "service" {
   }
 }
 
-resource "aws_lb" "alb" {
+resource "aws_alb" "alb" {
   name               = "alb-${var.service_name}"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
   subnets            = var.public_subnets
 
-  enable_deletion_protection = true
-
   tags = {
     Environment = var.tag_environment
   }
 }
 
-resource "aws_lb_target_group" "tg" {
+resource "aws_alb_target_group" "tg" {
   name        = "tg-${var.service_name}"
   port        = var.service_host_port
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = data.aws_vpc.vpc.id
 
-  depends_on = [aws_lb.alb]
+  depends_on = [aws_alb.alb]
 }
 
 resource "aws_security_group" "ecs-service" {
