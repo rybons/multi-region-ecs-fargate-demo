@@ -13,7 +13,7 @@ module "ecs" {
 }
 
 data "template_file" "service" {
-  template = "${file("${path.module}/templates/service.json.tpl")}"
+  template = file("${path.module}/templates/service.json.tpl")
   vars = {
     name            = var.service_name
     image           = var.service_container_image
