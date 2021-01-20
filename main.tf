@@ -23,7 +23,7 @@ locals {
   service_container_port  = 80
   service_host_port       = 80
   service_memory          = 512
-  service_cpu             = 128
+  service_cpu             = 256
   service_count           = 3
 }
 
