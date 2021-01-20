@@ -18,15 +18,25 @@ provider "aws" {
 }
 
 locals {
-  service_name      = "nginx-hello"
-  service_container = "nginxdemos/hello"
+  service_name            = "nginx-hello"
+  service_container_image = "nginxdemos/hello"
+  service_container_port  = 80
+  service_host_port       = 80
+  service_memory          = 512
+  service_cpu             = 128
+  service_count           = 3
 }
 
 module "ecs-east" {
   source          = "./modules/ecs-fargate"
 
-  service_name      = local.service_name
-  service_container = local.service_container
+  service_name              = local.service_name
+  service_container_image   = local.service_container_image
+  service_container_cpu     = local.service_cpu
+  service_container_memory  = local.service_memory
+  service_container_port    = local.service_container_port
+  service_host_port         = local.service_host_port
+  service_count             = local.service_count
 
   tag_environment = "dev-east"
 
@@ -38,8 +48,13 @@ module "ecs-east" {
 module "ecs-west" {
   source          = "./modules/ecs-fargate"
 
-  service_name      = local.service_name
-  service_container = local.service_container
+  service_name              = local.service_name
+  service_container_image   = local.service_container_image
+  service_container_cpu     = local.service_cpu
+  service_container_memory  = local.service_memory
+  service_container_port    = local.service_container_port
+  service_host_port         = local.service_host_port
+  service_count             = local.service_count
 
   tag_environment = "dev-west"
 

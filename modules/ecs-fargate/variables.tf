@@ -3,7 +3,23 @@
 variable "service_name" {
 }
 
-variable "service_container" {
+variable "service_container_image" {
+}
+
+variable "service_container_cpu" {
+}
+
+variable "service_container_memory" {
+}
+
+variable "service_container_port" {
+}
+
+variable "service_host_port" {
+}
+
+
+variable "service_count" {
 }
 
 # ECS Cluster Variables
