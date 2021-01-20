@@ -17,8 +17,17 @@ provider "aws" {
   region = "us-west-1"
 }
 
+locals {
+  service_name      = "nginx-hello"
+  service_container = "nginxdemos/hello"
+}
+
 module "ecs-east" {
   source          = "./modules/ecs-fargate"
+
+  service_name      = local.service_name
+  service_container = local.service_container
+
   tag_environment = "dev-east"
 
   providers = {
@@ -28,6 +37,10 @@ module "ecs-east" {
 
 module "ecs-west" {
   source          = "./modules/ecs-fargate"
+
+  service_name      = local.service_name
+  service_container = local.service_container
+
   tag_environment = "dev-west"
 
   providers = {
