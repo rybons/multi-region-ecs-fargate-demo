@@ -184,7 +184,13 @@ resource "aws_acm_certificate_validation" "validation" {
 resource "aws_route53_record" "api" {
   zone_id = data.aws_route53_zone.hosted_zone.zone_id
   name    = "${var.route53_api_subdomain}.${data.aws_route53_zone.hosted_zone.name}"
-  type    = "CNAME"
-  ttl     = "300"
-  records = [aws_alb.alb.dns_name]
+  type    = "A"
+
+  alias {
+    evaluate_target_health = true
+    name = aws_alb.alb.dns_name
+    zone_id = aws_alb.alb.zone_id
+  }
+
+
 }
