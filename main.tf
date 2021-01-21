@@ -30,7 +30,8 @@ locals {
 }
 
 module "vpc-east" {
-  source = "terraform-aws-modules/vpc/aws"
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "2.66.0"
 
   name = "ecs-fargate-east"
   cidr = "10.70.0.0/16"
