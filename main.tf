@@ -25,6 +25,8 @@ locals {
   service_memory          = 512
   service_cpu             = 256
   service_count           = 3
+
+  api_global_subdomain    = "api"
 }
 
 module "vpc-east" {
@@ -82,8 +84,9 @@ module "ecs-east" {
   service_host_port         = local.service_host_port
   service_count             = local.service_count
 
-  route53_hosted_zone_id    = var.route53_hosted_zone_id
-  route53_api_subdomain     = "api-us-east"
+  route53_hosted_zone_id        = var.route53_hosted_zone_id
+  route53_api_global_subdomain  = local.api_global_subdomain
+  route53_api_subdomain         = "api-us-east"
 
   vpc_id                    = module.vpc-east.vpc_id
   private_subnets           = module.vpc-east.private_subnets
@@ -107,8 +110,9 @@ module "ecs-west" {
   service_host_port         = local.service_host_port
   service_count             = local.service_count
 
-  route53_hosted_zone_id    = var.route53_hosted_zone_id
-  route53_api_subdomain     = "api-us-west"
+  route53_hosted_zone_id        = var.route53_hosted_zone_id
+  route53_api_global_subdomain  = local.api_global_subdomain
+  route53_api_subdomain         = "api-us-west"
 
   vpc_id                    = module.vpc-west.vpc_id
   private_subnets           = module.vpc-west.private_subnets
@@ -118,5 +122,19 @@ module "ecs-west" {
 
   providers = {
     aws = aws.west
+  }
+}
+
+module "route53-multi-region" {
+  source = "./modules/route53-multi-region"
+
+  api_endpoint_a        = module.ecs-east.route53_endpoint
+  api_endpoint_b        = module.ecs-west.route53_endpoint
+
+  route53_hosted_zone_id  = var.route53_hosted_zone_id
+  route53_api_subdomain   = local.api_global_subdomain
+
+  providers = {
+    aws = aws.east
   }
 }

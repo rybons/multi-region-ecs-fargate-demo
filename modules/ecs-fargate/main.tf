@@ -148,6 +148,8 @@ resource "aws_acm_certificate" "api" {
   domain_name       = aws_route53_record.api.name
   validation_method = "DNS"
 
+  subject_alternative_names = ["${var.route53_api_global_subdomain}.${data.aws_route53_zone.hosted_zone.name}"]
+
   tags = {
     Environment = var.tag_environment
   }

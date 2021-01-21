@@ -51,6 +51,9 @@ variable "route53_hosted_zone_id" {
 variable "route53_api_subdomain" {
 }
 
+variable "route53_api_global_subdomain" {
+}
+
 # Tags
 
 variable "tag_environment" {
