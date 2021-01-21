@@ -82,6 +82,9 @@ module "ecs-east" {
   service_host_port         = local.service_host_port
   service_count             = local.service_count
 
+  route53_hosted_zone_id    = var.route53_hosted_zone_id
+  route53_api_subdomain     = "api-us-east"
+
   vpc_id                    = module.vpc-east.vpc_id
   private_subnets           = module.vpc-east.private_subnets
   public_subnets            = module.vpc-east.public_subnets
@@ -103,6 +106,9 @@ module "ecs-west" {
   service_container_port    = local.service_container_port
   service_host_port         = local.service_host_port
   service_count             = local.service_count
+
+  route53_hosted_zone_id    = var.route53_hosted_zone_id
+  route53_api_subdomain     = "api-us-west"
 
   vpc_id                    = module.vpc-west.vpc_id
   private_subnets           = module.vpc-west.private_subnets

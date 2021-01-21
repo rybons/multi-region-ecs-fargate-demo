@@ -43,6 +43,14 @@ variable "cluster_capacity_provider" {
   default = "FARGATE_SPOT"
 }
 
+# Route53 Variables
+
+variable "route53_hosted_zone_id" {
+}
+
+variable "route53_api_subdomain" {
+}
+
 # Tags
 
 variable "tag_environment" {

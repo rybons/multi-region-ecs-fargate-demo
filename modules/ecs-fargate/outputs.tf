@@ -1,3 +1,3 @@
-output "alb_endpoint" {
-  value = aws_alb.alb.dns_name
+output "route53_endpoint" {
+  value = aws_route53_record.api
 }

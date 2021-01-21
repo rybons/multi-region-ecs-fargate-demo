@@ -16,6 +16,10 @@ data "aws_vpc" "vpc" {
   id = var.vpc_id
 }
 
+data "aws_route53_zone" "hosted_zone" {
+  zone_id = var.route53_hosted_zone_id
+}
+
 data "template_file" "service" {
   template = file("${path.module}/templates/service.json.tpl")
   vars = {
@@ -136,4 +140,12 @@ resource "aws_security_group" "alb" {
   tags = {
     Name = "alb-${var.service_name}"
   }
+}
+
+resource "aws_route53_record" "api" {
+  zone_id = data.aws_route53_zone.hosted_zone.zone_id
+  name    = "${var.route53_api_subdomain}.${data.aws_route53_zone.hosted_zone.name}"
+  type    = "CNAME"
+  ttl     = "300"
+  records = [aws_alb.alb.dns_name]
 }
