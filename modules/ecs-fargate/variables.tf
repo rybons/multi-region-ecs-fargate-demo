@@ -29,7 +29,6 @@ variable "service_container_port" {
 variable "service_host_port" {
 }
 
-
 variable "service_count" {
 }
 
