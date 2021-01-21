@@ -27,6 +27,57 @@ locals {
   service_count           = 3
 
   api_global_subdomain    = "api"
+
+  elasticsearch_version               = "7.9"
+  elasticsearch_instance_type         = "t3.small.elasticsearch"
+  elasticsearch_instance_count        = 3
+  elasticsearch_instance_volume_size  = 50
+  elasticsearch_az_count              = 3
+}
+
+module "vpc-operations" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "2.66.0"
+
+  name = "ecs-fargate-operations"
+  cidr = "10.60.0.0/16"
+
+  azs             = ["us-east-1a", "us-east-1b", "us-east-1c", "us-east-1d", "us-east-1e", "us-east-1f"]
+  private_subnets = ["10.60.1.0/24", "10.60.2.0/24", "10.60.3.0/24", "10.60.4.0/24", "10.60.5.0/24", "10.60.6.0/24"]
+  public_subnets  = ["10.60.101.0/24", "10.60.102.0/24", "10.60.103.0/24", "10.60.104.0/24", "10.60.105.0/24", "10.60.106.0/24"]
+
+  enable_nat_gateway = true
+  enable_vpn_gateway = true
+
+  tags = {
+    Environment = "operations"
+  }
+
+  providers = {
+    aws = aws.east
+  }
+}
+
+module "operations" {
+  source = "./modules/operations"
+
+  vpc_id          = module.vpc-operations.vpc_id
+  private_subnets = module.vpc-operations.private_subnets
+  public_subnets  = module.vpc-operations.public_subnets
+
+  route53_hosted_zone_id = var.route53_hosted_zone_id
+
+  allowed_iam_users = var.allowed_iam_users
+
+  elasticsearch_version               = local.elasticsearch_version
+  elasticsearch_instance_type         = local.elasticsearch_instance_type
+  elasticsearch_instance_count        = local.elasticsearch_instance_count
+  elasticsearch_instance_volume_size  = local.elasticsearch_instance_volume_size
+  elasticsearch_az_count              = local.elasticsearch_az_count
+
+  providers = {
+    aws = aws.east
+  }
 }
 
 module "vpc-east" {
