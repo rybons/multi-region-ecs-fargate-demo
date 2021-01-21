@@ -35,7 +35,7 @@ resource "aws_route53_record" "api-a" {
   ttl     = "5"
 
   weighted_routing_policy {
-    weight = 50
+    weight = 1
   }
 
   health_check_id = aws_route53_health_check.api-a.id
@@ -50,7 +50,7 @@ resource "aws_route53_record" "api-b" {
   ttl     = "5"
 
   weighted_routing_policy {
-    weight = 50
+    weight = 1
   }
 
   health_check_id = aws_route53_health_check.api-b.id
