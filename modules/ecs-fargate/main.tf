@@ -1,5 +1,7 @@
 module "ecs" {
-  source = "terraform-aws-modules/ecs/aws"
+  source  = "terraform-aws-modules/ecs/aws"
+  version = "2.5.0"
+
   name = var.cluster_name
   container_insights = true
   capacity_providers = ["FARGATE", "FARGATE_SPOT"]
