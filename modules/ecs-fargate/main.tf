@@ -83,8 +83,10 @@ resource "aws_alb_target_group" "tg" {
 
 resource "aws_alb_listener" "http-listener" {
   load_balancer_arn = aws_alb.alb.arn
-  port              = "80"
-  protocol          = "HTTP"
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = aws_acm_certificate.api.arn
 
   default_action {
     type             = "forward"
@@ -123,9 +125,9 @@ resource "aws_security_group" "alb" {
   vpc_id      = data.aws_vpc.vpc.id
 
   ingress {
-    description = "HTTP"
-    from_port   = 80
-    to_port     = 80
+    description = "HTTPS"
+    from_port   = 443
+    to_port     = 443
     protocol    = "TCP"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -140,6 +142,41 @@ resource "aws_security_group" "alb" {
   tags = {
     Name = "alb-${var.service_name}"
   }
+}
+
+resource "aws_acm_certificate" "api" {
+  domain_name       = aws_route53_record.api.name
+  validation_method = "DNS"
+
+  tags = {
+    Environment = var.tag_environment
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_route53_record" "validation_record" {
+  for_each = {
+    for dvo in aws_acm_certificate.api.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = data.aws_route53_zone.hosted_zone.zone_id
+}
+
+resource "aws_acm_certificate_validation" "validation" {
+  certificate_arn         = aws_acm_certificate.api.arn
+  validation_record_fqdns = [for record in aws_route53_record.validation_record: record.fqdn]
 }
 
 resource "aws_route53_record" "api" {
