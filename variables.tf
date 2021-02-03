@@ -1,6 +1,6 @@
 variable "route53_hosted_zone_id" {
 }
 
-variable "allowed_iam_users" {
+variable "elasticsearch_allowed_cidrs" {
   type = list(string)
 }
