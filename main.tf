@@ -35,23 +35,6 @@ locals {
   elasticsearch_az_count              = 3
 }
 
-module "operations" {
-  source = "./modules/operations"
-
-  route53_hosted_zone_id = var.route53_hosted_zone_id
-
-  elasticsearch_version               = local.elasticsearch_version
-  elasticsearch_instance_type         = local.elasticsearch_instance_type
-  elasticsearch_instance_count        = local.elasticsearch_instance_count
-  elasticsearch_instance_volume_size  = local.elasticsearch_instance_volume_size
-  elasticsearch_az_count              = local.elasticsearch_az_count
-  elasticsearch_allowed_cidrs         = var.elasticsearch_allowed_cidrs
-
-  providers = {
-    aws = aws.east
-  }
-}
-
 module "vpc-east" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "2.66.0"
