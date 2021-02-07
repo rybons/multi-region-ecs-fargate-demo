@@ -18,8 +18,7 @@ provider "aws" {
 }
 
 locals {
-  service_name            = "nginx-hello"
-  service_container_image = "nginxdemos/hello"
+  service_name            = "nginx"
   service_container_port  = 80
   service_host_port       = 80
   service_memory          = 512
@@ -33,6 +32,18 @@ locals {
   elasticsearch_instance_count        = 3
   elasticsearch_instance_volume_size  = 50
   elasticsearch_az_count              = 3
+}
+
+data "aws_region" "east" {
+  provider = aws.east
+}
+
+data "aws_region" "west" {
+  provider = aws.west
+}
+
+data "aws_caller_identity" "current" {
+  provider = aws.east
 }
 
 module "vpc-east" {
@@ -84,7 +95,7 @@ module "ecs-east" {
   source          = "./modules/ecs-fargate"
 
   service_name              = local.service_name
-  service_container_image   = local.service_container_image
+  service_container_image   = "${module.ecr-repository.repository_url}:latest"
   service_container_cpu     = local.service_cpu
   service_container_memory  = local.service_memory
   service_container_port    = local.service_container_port
@@ -110,7 +121,7 @@ module "ecs-west" {
   source          = "./modules/ecs-fargate"
 
   service_name              = local.service_name
-  service_container_image   = local.service_container_image
+  service_container_image   = "${module.ecr-repository.repository_url}:latest"
   service_container_cpu     = local.service_cpu
   service_container_memory  = local.service_memory
   service_container_port    = local.service_container_port
@@ -146,9 +157,39 @@ module "route53-multi-region" {
   }
 }
 
-module "ecr_repository" {
-  source = "./modules/ecr_repository"
+module "ecr-repository" {
+  source = "./modules/ecr-repository"
   name   = local.service_name
+
+  providers = {
+    aws = aws.east
+  }
+}
+
+module "ci" {
+  source        = "./modules/ci"
+
+  service_name       = local.service_name
+  ecr_repository_arn = module.ecr-repository.repository_arn
+
+  east_config = {
+    codedeploy_application_arn       = module.ecs-east.codedeploy_application_arn
+    codedeploy_deployment_group_arn  = module.ecs-east.codedeploy_deployment_group_arn
+    ecs_service_arn                  = module.ecs-east.ecs_service_arn
+    ecs_task_execution_role_arn      = module.ecs-east.ecs_task_execution_role_arn
+    account_id                       = data.aws_caller_identity.current.account_id
+    region                           = data.aws_region.east.name
+  }
+
+  west_config = {
+    codedeploy_application_arn       = module.ecs-west.codedeploy_application_arn
+    codedeploy_deployment_group_arn  = module.ecs-west.codedeploy_deployment_group_arn
+    ecs_service_arn                  = module.ecs-west.ecs_service_arn
+    ecs_task_execution_role_arn      = module.ecs-west.ecs_task_execution_role_arn
+    account_id                       = data.aws_caller_identity.current.account_id
+    region                           = data.aws_region.west.name
+  }
+
   providers = {
     aws = aws.east
   }
