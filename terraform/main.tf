@@ -145,3 +145,11 @@ module "route53-multi-region" {
     aws = aws.east
   }
 }
+
+module "ecr_repository" {
+  source = "./modules/ecr_repository"
+  name   = local.service_name
+  providers = {
+    aws = aws.east
+  }
+}
