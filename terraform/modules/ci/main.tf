@@ -62,7 +62,7 @@ resource "aws_iam_user_policy" "ci_iam_policy" {
             "${var.west_config.ecs_service_arn}",
             "${var.east_config.codedeploy_deployment_group_arn}",
             "${var.west_config.codedeploy_deployment_group_arn}",
-            "arn:aws:codedeploy:${var.east_config.region}:${var.west_config.account_id}:deploymentconfig:*",
+            "arn:aws:codedeploy:${var.east_config.region}:${var.east_config.account_id}:deploymentconfig:*",
             "arn:aws:codedeploy:${var.west_config.region}:${var.west_config.account_id}:deploymentconfig:*",
             "${var.east_config.codedeploy_application_arn}",
             "${var.west_config.codedeploy_application_arn}"
