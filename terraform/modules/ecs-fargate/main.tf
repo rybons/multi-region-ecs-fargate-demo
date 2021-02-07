@@ -119,7 +119,7 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "AWSCodeDeployRoleForECS" {
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRoleForECS"
+  policy_arn = "arn:aws:iam::aws:policy/AWSCodeDeployRoleForECS"
   role       = aws_iam_role.codedeploy_role.name
 }
 
