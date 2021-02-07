@@ -42,13 +42,14 @@ resource "aws_ecs_task_definition" "task" {
   network_mode              = "awsvpc"
   cpu                       = var.service_container_cpu
   memory                    = var.service_container_memory
+  execution_role_arn        = aws_iam_role.ecs_task_execution_role.arn
 
   lifecycle {
     ignore_changes = [container_definitions,cpu,memory]
   }
 }
 
-resource "aws_iam_role" "ecs_task_role" {
+resource "aws_iam_role" "ecs_task_execution_role" {
   name = "${var.service_name}-${data.aws_region.current.name}-ecs-task-execution-role"
 
   assume_role_policy = <<EOF
@@ -70,7 +71,7 @@ EOF
 
 resource "aws_iam_role_policy_attachment" "AmazonECSTaskExecutionRolePolicy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-  role       = aws_iam_role.ecs_task_role.name
+  role       = aws_iam_role.ecs_task_execution_role.name
 }
 
 resource "aws_ecs_service" "service" {
