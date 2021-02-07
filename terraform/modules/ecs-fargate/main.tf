@@ -124,7 +124,8 @@ resource "aws_iam_role_policy_attachment" "AWSCodeDeployRole" {
 }
 
 resource "aws_codedeploy_app" "codedeploy_app" {
-  name = var.service_name
+  compute_platform = "ECS"
+  name             = var.service_name
 }
 
 resource "aws_codedeploy_deployment_group" "deployment_group" {
