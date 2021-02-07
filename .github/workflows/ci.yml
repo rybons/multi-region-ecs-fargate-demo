@@ -22,7 +22,7 @@ jobs:
         env:
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
           IMAGE_TAG: latest
-          CONTEXT: dummy-app
+          CONTEXT: nginx
         run: |
           docker build -t $ECR_REPOSITORY:$IMAGE_TAG $CONTEXT
           docker push $ECR_REPOSITORY:$IMAGE_TAG
