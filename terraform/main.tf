@@ -174,7 +174,8 @@ module "ci" {
 
   east_config = {
     codedeploy_application_arn       = module.ecs-east.codedeploy_application_arn
-    codedeploy_deployment_group_arn  = module.ecs-east.codedeploy_deployment_group_arn
+    codedeploy_application_name      = module.ecs-east.codedeploy_application_name
+    codedeploy_deployment_group_name = module.ecs-east.codedeploy_deployment_group_name
     ecs_service_arn                  = module.ecs-east.ecs_service_arn
     ecs_task_execution_role_arn      = module.ecs-east.ecs_task_execution_role_arn
     account_id                       = data.aws_caller_identity.current.account_id
@@ -183,7 +184,8 @@ module "ci" {
 
   west_config = {
     codedeploy_application_arn       = module.ecs-west.codedeploy_application_arn
-    codedeploy_deployment_group_arn  = module.ecs-west.codedeploy_deployment_group_arn
+    codedeploy_application_name      = module.ecs-west.codedeploy_application_name
+    codedeploy_deployment_group_name = module.ecs-west.codedeploy_deployment_group_name
     ecs_service_arn                  = module.ecs-west.ecs_service_arn
     ecs_task_execution_role_arn      = module.ecs-west.ecs_task_execution_role_arn
     account_id                       = data.aws_caller_identity.current.account_id

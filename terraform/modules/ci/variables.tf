@@ -10,8 +10,8 @@ variable "ecr_repository_arn" {
 
 variable "east_config" {
   type        = object({
-    codedeploy_application_arn       = string
-    codedeploy_deployment_group_arn  = string
+    codedeploy_application_name      = string
+    codedeploy_deployment_group_name = string
     ecs_service_arn                  = string
     ecs_task_execution_role_arn      = string
     account_id                       = string
@@ -22,8 +22,8 @@ variable "east_config" {
 
 variable "west_config" {
   type        = object({
-    codedeploy_application_arn       = string
-    codedeploy_deployment_group_arn  = string
+    codedeploy_application_name      = string
+    codedeploy_deployment_group_name = string
     ecs_service_arn                  = string
     ecs_task_execution_role_arn      = string
     account_id                       = string
