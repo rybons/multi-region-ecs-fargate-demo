@@ -41,22 +41,19 @@ jobs:
           aws-region: us-east-1
       - name: Render Amazon ECS task definition for first container
         uses: aws-actions/amazon-ecs-render-task-definition@v1
-        env:
-          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
-          IMAGE_TAG: latest
-        id: render-web-container
+        id: render-task-definition
         with:
           task-definition: nginx/aws/task-definition.json
           container-name: nginx
-          image: $ECR_REPOSITORY:$IMAGE_TAG
+          image: ${{ secrets.ECR_REPOSITORY }}:latest
       - name: Deploy to Amazon ECS (us-west-1)
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.render-web-container.outputs.task-definition }}
+          task-definition: ${{ steps.render-task-definition.outputs.task-definition }}
           service: nginx-service
           cluster: ecs-cluster
           wait-for-service-stability: true
-          codedeploy-appspec: nginx/aws/appspec.json
+          codedeploy-appspec: nginx/aws/appspec.yaml
           codedeploy-application: nginx
           codedeploy-deployment-group: nginx-deployment-group
   deploy-us-west-1:
@@ -70,22 +67,19 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-west-1
       - name: Render Amazon ECS task definition for first container
-        env:
-          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
-          IMAGE_TAG: latest
-        id: render-web-container
+        id: render-task-definition
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: nginx/aws/task-definition.json
           container-name: nginx
-          image: $ECR_REPOSITORY:$IMAGE_TAG
+          image: ${{ secrets.ECR_REPOSITORY }}:latest
       - name: Deploy to Amazon ECS (us-west-1)
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.render-web-container.outputs.task-definition }}
+          task-definition: ${{ steps.render-task-definition.outputs.task-definition }}
           service: nginx-service
           cluster: ecs-cluster
           wait-for-service-stability: true
-          codedeploy-appspec: nginx/aws/appspec.json
+          codedeploy-appspec: nginx/aws/appspec.yaml
           codedeploy-application: nginx
           codedeploy-deployment-group: nginx-deployment-group
