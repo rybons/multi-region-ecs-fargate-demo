@@ -53,6 +53,7 @@ jobs:
           service: nginx-service
           cluster: ecs-cluster
           wait-for-service-stability: true
+          wait-for-minutes: 1
           codedeploy-appspec: nginx/aws/appspec.yaml
           codedeploy-application: nginx
           codedeploy-deployment-group: nginx-deployment-group
@@ -80,6 +81,7 @@ jobs:
           service: nginx-service
           cluster: ecs-cluster
           wait-for-service-stability: true
+          wait-for-minutes: 1
           codedeploy-appspec: nginx/aws/appspec.yaml
           codedeploy-application: nginx
           codedeploy-deployment-group: nginx-deployment-group
