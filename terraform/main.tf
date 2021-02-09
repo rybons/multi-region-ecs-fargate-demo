@@ -91,6 +91,34 @@ module "vpc-west" {
   }
 }
 
+resource "aws_iam_role" "ecs_task_execution_role" {
+  name = "${local.service_name}-ecs-task-execution-role"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+  provider = aws.east
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonECSTaskExecutionRolePolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+  role       = aws_iam_role.ecs_task_execution_role.name
+
+  provider = aws.east
+}
+
 module "ecs-east" {
   source          = "./modules/ecs-fargate"
 
@@ -101,6 +129,8 @@ module "ecs-east" {
   service_container_port    = local.service_container_port
   service_host_port         = local.service_host_port
   service_count             = local.service_count
+
+  task_execution_role_arn   = aws_iam_role.ecs_task_execution_role.arn
 
   route53_hosted_zone_id        = var.route53_hosted_zone_id
   route53_api_global_subdomain  = local.api_global_subdomain
@@ -127,6 +157,8 @@ module "ecs-west" {
   service_container_port    = local.service_container_port
   service_host_port         = local.service_host_port
   service_count             = local.service_count
+
+  task_execution_role_arn   = aws_iam_role.ecs_task_execution_role.arn
 
   route53_hosted_zone_id        = var.route53_hosted_zone_id
   route53_api_global_subdomain  = local.api_global_subdomain
@@ -177,7 +209,7 @@ module "ci" {
     codedeploy_application_name      = module.ecs-east.codedeploy_application_name
     codedeploy_deployment_group_name = module.ecs-east.codedeploy_deployment_group_name
     ecs_service_arn                  = module.ecs-east.ecs_service_arn
-    ecs_task_execution_role_arn      = module.ecs-east.ecs_task_execution_role_arn
+    ecs_task_execution_role_arn      = aws_iam_role.ecs_task_execution_role.arn
     account_id                       = data.aws_caller_identity.current.account_id
     region                           = data.aws_region.east.name
   }
@@ -187,7 +219,7 @@ module "ci" {
     codedeploy_application_name      = module.ecs-west.codedeploy_application_name
     codedeploy_deployment_group_name = module.ecs-west.codedeploy_deployment_group_name
     ecs_service_arn                  = module.ecs-west.ecs_service_arn
-    ecs_task_execution_role_arn      = module.ecs-west.ecs_task_execution_role_arn
+    ecs_task_execution_role_arn      = aws_iam_role.ecs_task_execution_role.arn
     account_id                       = data.aws_caller_identity.current.account_id
     region                           = data.aws_region.west.name
   }

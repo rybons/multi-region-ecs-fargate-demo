@@ -9,6 +9,11 @@ variable "public_subnets" {
 variable "private_subnets" {
 }
 
+# IAM Variables
+
+variable "task_execution_role_arn" {
+}
+
 # ECS Service Variables
 
 variable "service_name" {
