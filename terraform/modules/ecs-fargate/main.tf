@@ -73,6 +73,10 @@ resource "aws_ecs_service" "service" {
   deployment_controller {
     type = "CODE_DEPLOY"
   }
+
+  lifecycle {
+    ignore_changes = [load_balancer, task_definition]
+  }
 }
 
 resource "aws_iam_role" "codedeploy_role" {
@@ -123,7 +127,6 @@ resource "aws_codedeploy_deployment_group" "deployment_group" {
 
     terminate_blue_instances_on_deployment_success {
       action                           = "TERMINATE"
-      termination_wait_time_in_minutes = 5
     }
   }
 
@@ -196,6 +199,10 @@ resource "aws_alb_listener" "http-listener" {
   default_action {
     type             = "forward"
     target_group_arn = aws_alb_target_group.blue.arn
+  }
+
+  lifecycle {
+    ignore_changes = [default_action]
   }
 }
 
